@@ -1,0 +1,21 @@
+{
+  "data_files": [
+    "lemmas_60k.txt",
+    "lemmas_60k_subgenres.txt",
+    "lemmas_60k_words.txt",
+    "wn.xml",
+    "wordFrequency.xlsx"
+  ],
+  "database_files": [],
+  "skipped_files": [
+    "words_219k.txt (processing failed)"
+  ],
+  "source_paths": {
+    "data": "E:\\Company\\database_final_BEST\\data\\source",
+    "database": "E:\\Company\\database_final_BEST\\database"
+  },
+  "output_paths": {
+    "data": "E:\\Company\\database_final_BEST\\App\\data_structure",
+    "database": "E:\\Company\\database_final_BEST\\App\\database_structure"
+  }
+}

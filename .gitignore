@@ -1,0 +1,36 @@
+# Ignore original data and database files
+*.db
+*.sqlite
+*.sqlite3
+*.mdb
+*.accdb
+
+# Ignore large data files
+*.csv
+*.json
+*.xml
+*.xlsx
+*.xls
+
+# Keep sample structures
+!data_structure/*
+!database_structure/*
+
+# Ignore source directories
+/data/
+/database/
+/db/
+/datasets/
+/source/
+# Python bytecode
+__pycache__/
+# Keep important files
+!sample_generation_summary.json
+!README.md
+
+# Ignore large files
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz

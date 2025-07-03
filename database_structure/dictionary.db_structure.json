@@ -1,0 +1,746 @@
+{
+  "database_name": "dictionary.db",
+  "extraction_date": "2025-07-03T17:37:03.755911",
+  "original_path": "E:\\Company\\database_final_BEST\\database\\dictionary.db",
+  "file_size": 46473216,
+  "tables": {
+    "context_frequencies": {
+      "columns": {
+        "id": {
+          "id": 0,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": null,
+          "primary_key": true
+        },
+        "lemma_id": {
+          "id": 1,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "pos": {
+          "id": 2,
+          "type": "VARCHAR(50)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "context_type": {
+          "id": 3,
+          "type": "VARCHAR(100)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "context_name": {
+          "id": 4,
+          "type": "VARCHAR(100)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "frequency": {
+          "id": 5,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": "0",
+          "primary_key": false
+        },
+        "context_metadata": {
+          "id": 6,
+          "type": "TEXT",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        }
+      },
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "lemma_id",
+          "references_table": "lemmas",
+          "references_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [],
+      "indexes": [
+        {
+          "name": "idx_context_freq_name",
+          "unique": false,
+          "columns": [
+            "context_name"
+          ]
+        },
+        {
+          "name": "idx_context_freq_type",
+          "unique": false,
+          "columns": [
+            "context_type"
+          ]
+        },
+        {
+          "name": "idx_context_freq_lemma_pos",
+          "unique": false,
+          "columns": [
+            "lemma_id",
+            "pos"
+          ]
+        }
+      ],
+      "row_count": 548434,
+      "create_sql": "CREATE TABLE context_frequencies (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            lemma_id INTEGER NOT NULL,\n            pos VARCHAR(50) NOT NULL,\n            context_type VARCHAR(100) NOT NULL, -- 'broad_domain' or 'subgenre'\n            context_name VARCHAR(100) NOT NULL, -- domain/subgenre name\n            frequency INTEGER DEFAULT 0,\n            context_metadata TEXT, -- JSON for additional info\n            FOREIGN KEY (lemma_id) REFERENCES lemmas(id)\n        )",
+      "sample_data_types": {
+        "id": "int",
+        "lemma_id": "int",
+        "pos": "str",
+        "context_type": "str",
+        "context_name": "str",
+        "frequency": "int",
+        "context_metadata": "NoneType"
+      }
+    },
+    "definitions": {
+      "columns": {
+        "id": {
+          "id": 0,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": null,
+          "primary_key": true
+        },
+        "lemma_id": {
+          "id": 1,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "pos": {
+          "id": 2,
+          "type": "VARCHAR(50)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "definition_text": {
+          "id": 3,
+          "type": "TEXT",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        },
+        "definition_order": {
+          "id": 4,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": "1",
+          "primary_key": false
+        },
+        "example_sentence": {
+          "id": 5,
+          "type": "TEXT",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        },
+        "hypernyms": {
+          "id": 6,
+          "type": "TEXT",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        }
+      },
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "lemma_id",
+          "references_table": "lemmas",
+          "references_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [],
+      "indexes": [],
+      "row_count": 0,
+      "create_sql": "CREATE TABLE definitions (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            lemma_id INTEGER NOT NULL,\n            pos VARCHAR(50) NOT NULL,\n            definition_text TEXT,\n            definition_order INTEGER DEFAULT 1,\n            example_sentence TEXT,\n            hypernyms TEXT, -- JSON array\n            FOREIGN KEY (lemma_id) REFERENCES lemmas(id)\n        )"
+    },
+    "inflected_forms": {
+      "columns": {
+        "id": {
+          "id": 0,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": null,
+          "primary_key": true
+        },
+        "lemma_id": {
+          "id": 1,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "form": {
+          "id": 2,
+          "type": "VARCHAR(255)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "pos": {
+          "id": 3,
+          "type": "VARCHAR(50)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "form_frequency": {
+          "id": 4,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": "0",
+          "primary_key": false
+        },
+        "form_rank": {
+          "id": 5,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": "0",
+          "primary_key": false
+        },
+        "inflection_type": {
+          "id": 6,
+          "type": "VARCHAR(100)",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        },
+        "grammatical_info": {
+          "id": 7,
+          "type": "TEXT",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        }
+      },
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "lemma_id",
+          "references_table": "lemmas",
+          "references_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [],
+      "indexes": [
+        {
+          "name": "idx_inflected_forms_frequency",
+          "unique": false,
+          "columns": [
+            "form_frequency"
+          ]
+        },
+        {
+          "name": "idx_inflected_forms_pos",
+          "unique": false,
+          "columns": [
+            "pos"
+          ]
+        },
+        {
+          "name": "idx_inflected_forms_lemma_id",
+          "unique": false,
+          "columns": [
+            "lemma_id"
+          ]
+        },
+        {
+          "name": "idx_inflected_forms_form",
+          "unique": false,
+          "columns": [
+            "form"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_inflected_forms_1",
+          "unique": true,
+          "columns": [
+            "form",
+            "lemma_id",
+            "pos"
+          ]
+        }
+      ],
+      "row_count": 11291,
+      "create_sql": "CREATE TABLE inflected_forms (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            lemma_id INTEGER NOT NULL,\n            form VARCHAR(255) NOT NULL,\n            pos VARCHAR(50) NOT NULL,\n            form_frequency INTEGER DEFAULT 0,\n            form_rank INTEGER DEFAULT 0,\n            inflection_type VARCHAR(100),\n            grammatical_info TEXT, -- JSON string\n            FOREIGN KEY (lemma_id) REFERENCES lemmas(id),\n            UNIQUE(form, lemma_id, pos)\n        )",
+      "sample_data_types": {
+        "id": "int",
+        "lemma_id": "int",
+        "form": "str",
+        "pos": "str",
+        "form_frequency": "int",
+        "form_rank": "int",
+        "inflection_type": "NoneType",
+        "grammatical_info": "NoneType"
+      }
+    },
+    "languages": {
+      "columns": {
+        "id": {
+          "id": 0,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": null,
+          "primary_key": true
+        },
+        "code": {
+          "id": 1,
+          "type": "VARCHAR(5)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "name": {
+          "id": 2,
+          "type": "VARCHAR(100)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        }
+      },
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "unique_constraints": [],
+      "check_constraints": [],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_languages_1",
+          "unique": true,
+          "columns": [
+            "code"
+          ]
+        }
+      ],
+      "row_count": 1,
+      "create_sql": "CREATE TABLE languages (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            code VARCHAR(5) NOT NULL UNIQUE,\n            name VARCHAR(100) NOT NULL\n        )",
+      "sample_data_types": {
+        "id": "int",
+        "code": "str",
+        "name": "str"
+      }
+    },
+    "lemmas": {
+      "columns": {
+        "id": {
+          "id": 0,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": null,
+          "primary_key": true
+        },
+        "lemma": {
+          "id": 1,
+          "type": "VARCHAR(255)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "language_id": {
+          "id": 2,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "lemma_frequency": {
+          "id": 3,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": "0",
+          "primary_key": false
+        },
+        "lemma_rank": {
+          "id": 4,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": "0",
+          "primary_key": false
+        },
+        "dispersion_score": {
+          "id": 5,
+          "type": "REAL",
+          "not_null": false,
+          "default": "0.0",
+          "primary_key": false
+        },
+        "created_at": {
+          "id": 6,
+          "type": "TIMESTAMP",
+          "not_null": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      },
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "language_id",
+          "references_table": "languages",
+          "references_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [],
+      "indexes": [
+        {
+          "name": "idx_lemmas_rank",
+          "unique": false,
+          "columns": [
+            "lemma_rank"
+          ]
+        },
+        {
+          "name": "idx_lemmas_frequency",
+          "unique": false,
+          "columns": [
+            "lemma_frequency"
+          ]
+        },
+        {
+          "name": "idx_lemmas_lemma",
+          "unique": false,
+          "columns": [
+            "lemma"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_lemmas_1",
+          "unique": true,
+          "columns": [
+            "lemma",
+            "language_id"
+          ]
+        }
+      ],
+      "row_count": 4380,
+      "create_sql": "CREATE TABLE lemmas (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            lemma VARCHAR(255) NOT NULL,\n            language_id INTEGER NOT NULL,\n            lemma_frequency INTEGER DEFAULT 0,\n            lemma_rank INTEGER DEFAULT 0,\n            dispersion_score REAL DEFAULT 0.0,\n            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n            FOREIGN KEY (language_id) REFERENCES languages(id),\n            UNIQUE(lemma, language_id)\n        )",
+      "sample_data_types": {
+        "id": "int",
+        "lemma": "str",
+        "language_id": "int",
+        "lemma_frequency": "int",
+        "lemma_rank": "int",
+        "dispersion_score": "float",
+        "created_at": "str"
+      }
+    },
+    "pronunciations": {
+      "columns": {
+        "id": {
+          "id": 0,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": null,
+          "primary_key": true
+        },
+        "lemma_id": {
+          "id": 1,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "ipa_notation": {
+          "id": 2,
+          "type": "VARCHAR(255)",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        },
+        "audio_file_path": {
+          "id": 3,
+          "type": "VARCHAR(500)",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        },
+        "accent_variety": {
+          "id": 4,
+          "type": "VARCHAR(50)",
+          "not_null": false,
+          "default": "'general'",
+          "primary_key": false
+        }
+      },
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "lemma_id",
+          "references_table": "lemmas",
+          "references_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [],
+      "indexes": [],
+      "row_count": 0,
+      "create_sql": "CREATE TABLE pronunciations (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            lemma_id INTEGER NOT NULL,\n            ipa_notation VARCHAR(255),\n            audio_file_path VARCHAR(500),\n            accent_variety VARCHAR(50) DEFAULT 'general',\n            FOREIGN KEY (lemma_id) REFERENCES lemmas(id)\n        )"
+    },
+    "sqlite_sequence": {
+      "columns": {
+        "name": {
+          "id": 0,
+          "type": "",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        },
+        "seq": {
+          "id": 1,
+          "type": "",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        }
+      },
+      "primary_keys": [],
+      "foreign_keys": [],
+      "unique_constraints": [],
+      "check_constraints": [],
+      "indexes": [],
+      "row_count": 4,
+      "create_sql": "CREATE TABLE sqlite_sequence(name,seq)",
+      "sample_data_types": {
+        "name": "str",
+        "seq": "int"
+      }
+    },
+    "synonyms": {
+      "columns": {
+        "id": {
+          "id": 0,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": null,
+          "primary_key": true
+        },
+        "lemma_id": {
+          "id": 1,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "synonym_lemma_id": {
+          "id": 2,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "pos_specific": {
+          "id": 3,
+          "type": "VARCHAR(50)",
+          "not_null": false,
+          "default": null,
+          "primary_key": false
+        },
+        "similarity_score": {
+          "id": 4,
+          "type": "DECIMAL(4,3)",
+          "not_null": false,
+          "default": "0.0",
+          "primary_key": false
+        }
+      },
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "synonym_lemma_id",
+          "references_table": "lemmas",
+          "references_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION"
+        },
+        {
+          "column": "lemma_id",
+          "references_table": "lemmas",
+          "references_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [],
+      "indexes": [],
+      "row_count": 0,
+      "create_sql": "CREATE TABLE synonyms (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            lemma_id INTEGER NOT NULL,\n            synonym_lemma_id INTEGER NOT NULL,\n            pos_specific VARCHAR(50),\n            similarity_score DECIMAL(4,3) DEFAULT 0.0,\n            FOREIGN KEY (lemma_id) REFERENCES lemmas(id),\n            FOREIGN KEY (synonym_lemma_id) REFERENCES lemmas(id)\n        )"
+    },
+    "word_references": {
+      "columns": {
+        "id": {
+          "id": 0,
+          "type": "INTEGER",
+          "not_null": false,
+          "default": null,
+          "primary_key": true
+        },
+        "source_definition_id": {
+          "id": 1,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "referenced_lemma_id": {
+          "id": 2,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "word_position": {
+          "id": 3,
+          "type": "INTEGER",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "word_text": {
+          "id": 4,
+          "type": "VARCHAR(255)",
+          "not_null": true,
+          "default": null,
+          "primary_key": false
+        },
+        "reference_type": {
+          "id": 5,
+          "type": "VARCHAR(50)",
+          "not_null": false,
+          "default": "'definition'",
+          "primary_key": false
+        }
+      },
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "referenced_lemma_id",
+          "references_table": "lemmas",
+          "references_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION"
+        },
+        {
+          "column": "source_definition_id",
+          "references_table": "definitions",
+          "references_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [],
+      "indexes": [
+        {
+          "name": "idx_word_references_target",
+          "unique": false,
+          "columns": [
+            "referenced_lemma_id"
+          ]
+        },
+        {
+          "name": "idx_word_references_source",
+          "unique": false,
+          "columns": [
+            "source_definition_id"
+          ]
+        }
+      ],
+      "row_count": 0,
+      "create_sql": "CREATE TABLE word_references (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            source_definition_id INTEGER NOT NULL,\n            referenced_lemma_id INTEGER NOT NULL,\n            word_position INTEGER NOT NULL,\n            word_text VARCHAR(255) NOT NULL,\n            reference_type VARCHAR(50) DEFAULT 'definition',\n            FOREIGN KEY (source_definition_id) REFERENCES definitions(id),\n            FOREIGN KEY (referenced_lemma_id) REFERENCES lemmas(id)\n        )"
+    }
+  },
+  "views": {},
+  "indexes": {
+    "idx_context_freq_lemma_pos": {
+      "table": "context_frequencies",
+      "sql": "CREATE INDEX idx_context_freq_lemma_pos ON context_frequencies(lemma_id, pos)"
+    },
+    "idx_context_freq_name": {
+      "table": "context_frequencies",
+      "sql": "CREATE INDEX idx_context_freq_name ON context_frequencies(context_name)"
+    },
+    "idx_context_freq_type": {
+      "table": "context_frequencies",
+      "sql": "CREATE INDEX idx_context_freq_type ON context_frequencies(context_type)"
+    },
+    "idx_inflected_forms_form": {
+      "table": "inflected_forms",
+      "sql": "CREATE INDEX idx_inflected_forms_form ON inflected_forms(form)"
+    },
+    "idx_inflected_forms_frequency": {
+      "table": "inflected_forms",
+      "sql": "CREATE INDEX idx_inflected_forms_frequency ON inflected_forms(form_frequency DESC)"
+    },
+    "idx_inflected_forms_lemma_id": {
+      "table": "inflected_forms",
+      "sql": "CREATE INDEX idx_inflected_forms_lemma_id ON inflected_forms(lemma_id)"
+    },
+    "idx_inflected_forms_pos": {
+      "table": "inflected_forms",
+      "sql": "CREATE INDEX idx_inflected_forms_pos ON inflected_forms(pos)"
+    },
+    "idx_lemmas_frequency": {
+      "table": "lemmas",
+      "sql": "CREATE INDEX idx_lemmas_frequency ON lemmas(lemma_frequency DESC)"
+    },
+    "idx_lemmas_lemma": {
+      "table": "lemmas",
+      "sql": "CREATE INDEX idx_lemmas_lemma ON lemmas(lemma)"
+    },
+    "idx_lemmas_rank": {
+      "table": "lemmas",
+      "sql": "CREATE INDEX idx_lemmas_rank ON lemmas(lemma_rank)"
+    },
+    "idx_word_references_source": {
+      "table": "word_references",
+      "sql": "CREATE INDEX idx_word_references_source ON word_references(source_definition_id)"
+    },
+    "idx_word_references_target": {
+      "table": "word_references",
+      "sql": "CREATE INDEX idx_word_references_target ON word_references(referenced_lemma_id)"
+    }
+  },
+  "triggers": {}
+}

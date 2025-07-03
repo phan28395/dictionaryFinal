@@ -1,0 +1,10 @@
+{
+  "extraction_date": "2025-07-03T17:37:03.777608",
+  "source_path": "E:\\Company\\database_final_BEST\\database",
+  "output_path": "E:\\Company\\database_final_BEST\\App\\database_structure",
+  "files_generated": [
+    "*.db_structure.json - Complete structure in JSON format",
+    "*.db_schema.sql - SQL schema file",
+    "*.db_documentation.md - Human-readable documentation"
+  ]
+}

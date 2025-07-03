@@ -1,0 +1,22 @@
+* Top 60,000 lemmas, with word forms for each lemma
+* This sample data is taken from the one billion word Corpus of Contemporary American English (COCA)
+(www.english-corpora.org/coca), which is the only corpus of English that is large, up-to-date, and is based on a wide range of genres.
+* For complete word frequency data from COCA, please see https://www.wordfrequency.info
+* For instructions on using this file in Excel, see https://www.wordfrequency.info/freqTxtToExcel.pdf
+* For an explanation of the columns below, see https://www.wordfrequency.info/files.asp
+----- Before converting file to Excel, remove the first eight lines, with the first line being the one starting with "rank"
+
+lemRank	lemma	PoS	lemFreq	wordFreq	word
+5	of	i	23159162	23159162	of
+15	do	v	8186412	4501047	do
+15	do	v	8186412	1889734	did
+15	do	v	8186412	964997	does
+15	do	v	8186412	461455	doing
+15	do	v	8186412	356317	done
+15	do	v	8186412	9657	doin
+15	do	v	8186412	1655	doth
+15	do	v	8186412	1548	don
+25	they	p	4503650	4503650	they
+35	she	p	3188078	3188077	she
+
+... (truncated - original file has 10081 lines) ...

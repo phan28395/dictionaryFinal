@@ -1,3 +1,7 @@
+
+## phase1_excel_to_db.py
+
+
 import pandas as pd
 import sqlite3
 import json
@@ -5,13 +9,19 @@ from pathlib import Path
 import logging
 from typing import Dict, List, Tuple, Optional
 import re
+import sys
+import os
+
+# Add parent directory to path for config import
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import *
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=LOG_LEVEL, format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 
 class DictionaryDatabaseBuilder:
-    def __init__(self, excel_file_path: str, db_path: str = "dictionary.db"):
+    def __init__(self, excel_file_path: str = EXCEL_FILE, db_path: str = DATABASE_FILE):
         self.excel_file_path = excel_file_path
         self.db_path = db_path
         self.conn = None
@@ -48,24 +58,24 @@ class DictionaryDatabaseBuilder:
             form_frequency INTEGER DEFAULT 0,
             form_rank INTEGER DEFAULT 0,
             inflection_type VARCHAR(100),
-            grammatical_info TEXT, -- JSON string
+            grammatical_info TEXT,
             FOREIGN KEY (lemma_id) REFERENCES lemmas(id),
             UNIQUE(form, lemma_id, pos)
         );
         
-        -- Context frequencies table (for broad domains and subgenres)
+        -- Context frequencies table
         CREATE TABLE IF NOT EXISTS context_frequencies (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             lemma_id INTEGER NOT NULL,
             pos VARCHAR(50) NOT NULL,
-            context_type VARCHAR(100) NOT NULL, -- 'broad_domain' or 'subgenre'
-            context_name VARCHAR(100) NOT NULL, -- domain/subgenre name
+            context_type VARCHAR(100) NOT NULL,
+            context_name VARCHAR(100) NOT NULL,
             frequency INTEGER DEFAULT 0,
-            context_metadata TEXT, -- JSON for additional info
+            context_metadata TEXT,
             FOREIGN KEY (lemma_id) REFERENCES lemmas(id)
         );
         
-        -- Definitions table (placeholder for now)
+        -- Definitions table
         CREATE TABLE IF NOT EXISTS definitions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             lemma_id INTEGER NOT NULL,
@@ -73,11 +83,11 @@ class DictionaryDatabaseBuilder:
             definition_text TEXT,
             definition_order INTEGER DEFAULT 1,
             example_sentence TEXT,
-            hypernyms TEXT, -- JSON array
+            hypernyms TEXT,
             FOREIGN KEY (lemma_id) REFERENCES lemmas(id)
         );
         
-        -- Word references table (for clickable cross-references)
+        -- Word references table
         CREATE TABLE IF NOT EXISTS word_references (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source_definition_id INTEGER NOT NULL,
@@ -89,7 +99,7 @@ class DictionaryDatabaseBuilder:
             FOREIGN KEY (referenced_lemma_id) REFERENCES lemmas(id)
         );
         
-        -- Synonyms table (placeholder)
+        -- Synonyms table
         CREATE TABLE IF NOT EXISTS synonyms (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             lemma_id INTEGER NOT NULL,
@@ -100,7 +110,7 @@ class DictionaryDatabaseBuilder:
             FOREIGN KEY (synonym_lemma_id) REFERENCES lemmas(id)
         );
         
-        -- Pronunciations table (placeholder)
+        -- Pronunciations table
         CREATE TABLE IF NOT EXISTS pronunciations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             lemma_id INTEGER NOT NULL,
@@ -119,23 +129,16 @@ class DictionaryDatabaseBuilder:
     def create_indexes(self):
         """Create performance indexes"""
         indexes_sql = """
-        -- Primary lookup indexes
         CREATE INDEX IF NOT EXISTS idx_lemmas_lemma ON lemmas(lemma);
         CREATE INDEX IF NOT EXISTS idx_lemmas_frequency ON lemmas(lemma_frequency DESC);
         CREATE INDEX IF NOT EXISTS idx_lemmas_rank ON lemmas(lemma_rank);
-        
-        -- Inflected forms indexes
         CREATE INDEX IF NOT EXISTS idx_inflected_forms_form ON inflected_forms(form);
         CREATE INDEX IF NOT EXISTS idx_inflected_forms_lemma_id ON inflected_forms(lemma_id);
         CREATE INDEX IF NOT EXISTS idx_inflected_forms_pos ON inflected_forms(pos);
         CREATE INDEX IF NOT EXISTS idx_inflected_forms_frequency ON inflected_forms(form_frequency DESC);
-        
-        -- Context frequencies indexes
         CREATE INDEX IF NOT EXISTS idx_context_freq_lemma_pos ON context_frequencies(lemma_id, pos);
         CREATE INDEX IF NOT EXISTS idx_context_freq_type ON context_frequencies(context_type);
         CREATE INDEX IF NOT EXISTS idx_context_freq_name ON context_frequencies(context_name);
-        
-        -- Cross-reference indexes
         CREATE INDEX IF NOT EXISTS idx_word_references_source ON word_references(source_definition_id);
         CREATE INDEX IF NOT EXISTS idx_word_references_target ON word_references(referenced_lemma_id);
         """
@@ -153,7 +156,8 @@ class DictionaryDatabaseBuilder:
             VALUES ('en', 'English')
         """)
         self.conn.commit()
-        return cursor.lastrowid if cursor.rowcount > 0 else 1
+        cursor.execute("SELECT id FROM languages WHERE code = 'en'")
+        return cursor.fetchone()[0]
     
     def load_excel_data(self) -> Dict[str, pd.DataFrame]:
         """Load all tabs from Excel file"""
@@ -161,9 +165,11 @@ class DictionaryDatabaseBuilder:
         
         try:
             excel_data = {}
-            excel_data['wordforms'] = pd.read_excel(self.excel_file_path, sheet_name='3 wordForms')
-            excel_data['lemmas'] = pd.read_excel(self.excel_file_path, sheet_name='1 lemmas')
-            excel_data['subgenres'] = pd.read_excel(self.excel_file_path, sheet_name='2 subgenres')
+            nrows = SAMPLE_ROWS if SAMPLE_ROWS else None
+            
+            excel_data['wordforms'] = pd.read_excel(self.excel_file_path, sheet_name=SHEETS['wordforms'], nrows=nrows)
+            excel_data['lemmas'] = pd.read_excel(self.excel_file_path, sheet_name=SHEETS['lemmas'], nrows=nrows)
+            excel_data['subgenres'] = pd.read_excel(self.excel_file_path, sheet_name=SHEETS['subgenres'], nrows=nrows)
             
             logger.info(f"Loaded {len(excel_data['wordforms'])} word forms")
             logger.info(f"Loaded {len(excel_data['lemmas'])} lemma entries")
@@ -178,9 +184,8 @@ class DictionaryDatabaseBuilder:
         """Process and insert lemma data with dispersion scores"""
         logger.info("Processing lemmas data...")
         
-        # Get unique lemmas (since lemmas can have multiple POS entries)
         unique_lemmas = lemmas_df.groupby('lemma').agg({
-            'disp': 'first',  # Take first dispersion value
+            'disp': 'first',
         }).reset_index()
         
         lemma_data = []
@@ -188,8 +193,8 @@ class DictionaryDatabaseBuilder:
             lemma_data.append((
                 row['lemma'],
                 language_id,
-                0,  # lemma_frequency - will be updated from wordforms
-                0,  # lemma_rank - will be updated from wordforms
+                0,
+                0,
                 float(row['disp']) if pd.notna(row['disp']) else 0.0
             ))
         
@@ -206,7 +211,6 @@ class DictionaryDatabaseBuilder:
         """Process and insert word forms data"""
         logger.info("Processing word forms data...")
         
-        # First, update lemma frequencies and ranks
         lemma_updates = wordforms_df.groupby('lemma').agg({
             'lemFreq': 'first',
             'lemRank': 'first'
@@ -214,7 +218,6 @@ class DictionaryDatabaseBuilder:
         
         cursor = self.conn.cursor()
         
-        # Update lemma frequencies and ranks
         for _, row in lemma_updates.iterrows():
             cursor.execute("""
                 UPDATE lemmas 
@@ -226,10 +229,8 @@ class DictionaryDatabaseBuilder:
                 row['lemma']
             ))
         
-        # Insert inflected forms
         inflected_forms_data = []
         for _, row in wordforms_df.iterrows():
-            # Get lemma_id
             cursor.execute("SELECT id FROM lemmas WHERE lemma = ?", (row['lemma'],))
             lemma_result = cursor.fetchone()
             if lemma_result:
@@ -239,35 +240,35 @@ class DictionaryDatabaseBuilder:
                     row['word'],
                     row['PoS'],
                     int(row['wordFreq']) if pd.notna(row['wordFreq']) else 0,
-                    0,  # form_rank - can be calculated later if needed
-                    None,  # inflection_type
-                    None   # grammatical_info
+                    0,
+                    None,
+                    None
                 ))
         
-        cursor.executemany("""
-            INSERT OR IGNORE INTO inflected_forms 
-            (lemma_id, form, pos, form_frequency, form_rank, inflection_type, grammatical_info)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, inflected_forms_data)
+        # Batch insert
+        for i in range(0, len(inflected_forms_data), BATCH_SIZE):
+            batch = inflected_forms_data[i:i + BATCH_SIZE]
+            cursor.executemany("""
+                INSERT OR IGNORE INTO inflected_forms 
+                (lemma_id, form, pos, form_frequency, form_rank, inflection_type, grammatical_info)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, batch)
         
         self.conn.commit()
         logger.info(f"Inserted {len(inflected_forms_data)} inflected forms")
     
     def process_broad_domains(self, lemmas_df: pd.DataFrame):
-        """Process broad domain frequencies (columns J to Y)"""
+        """Process broad domain frequencies"""
         logger.info("Processing broad domain frequencies...")
         
-        # Define the broad domain columns (J to Y in Excel = columns 9 to 24 in 0-based indexing)
-        # We'll need to identify these columns by their actual names
         domain_columns = []
         for col in lemmas_df.columns:
-            # Skip the first few columns that are not domain columns
             if col not in ['lemma', 'PoS', 'disp'] and lemmas_df.columns.get_loc(col) >= 9:
-                if lemmas_df.columns.get_loc(col) <= 24:  # Assuming Y is column 24
+                if lemmas_df.columns.get_loc(col) <= 24:
                     domain_columns.append(col)
         
         if not domain_columns:
-            logger.warning("No broad domain columns found. Please check column mapping.")
+            logger.warning("No broad domain columns found")
             return
         
         logger.info(f"Found {len(domain_columns)} broad domain columns: {domain_columns}")
@@ -276,7 +277,6 @@ class DictionaryDatabaseBuilder:
         context_data = []
         
         for _, row in lemmas_df.iterrows():
-            # Get lemma_id
             cursor.execute("SELECT id FROM lemmas WHERE lemma = ?", (row['lemma'],))
             lemma_result = cursor.fetchone()
             if lemma_result:
@@ -292,24 +292,25 @@ class DictionaryDatabaseBuilder:
                             'broad_domain',
                             domain_col,
                             int(frequency),
-                            None  # context_metadata
+                            None
                         ))
         
         if context_data:
-            cursor.executemany("""
-                INSERT INTO context_frequencies 
-                (lemma_id, pos, context_type, context_name, frequency, context_metadata)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, context_data)
+            for i in range(0, len(context_data), BATCH_SIZE):
+                batch = context_data[i:i + BATCH_SIZE]
+                cursor.executemany("""
+                    INSERT INTO context_frequencies 
+                    (lemma_id, pos, context_type, context_name, frequency, context_metadata)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, batch)
             
             self.conn.commit()
             logger.info(f"Inserted {len(context_data)} broad domain frequency records")
     
     def process_subgenres(self, subgenres_df: pd.DataFrame):
-        """Process subgenre frequencies (columns x101 to x214)"""
+        """Process subgenre frequencies"""
         logger.info("Processing subgenre frequencies...")
         
-        # Find columns that start with 'x' and are between x101 and x214
         subgenre_columns = []
         for col in subgenres_df.columns:
             if str(col).startswith('x') and str(col)[1:].isdigit():
@@ -318,7 +319,7 @@ class DictionaryDatabaseBuilder:
                     subgenre_columns.append(col)
         
         if not subgenre_columns:
-            logger.warning("No subgenre columns found (x101-x214). Please check column names.")
+            logger.warning("No subgenre columns found")
             return
         
         logger.info(f"Found {len(subgenre_columns)} subgenre columns")
@@ -327,7 +328,6 @@ class DictionaryDatabaseBuilder:
         context_data = []
         
         for _, row in subgenres_df.iterrows():
-            # Get lemma_id
             cursor.execute("SELECT id FROM lemmas WHERE lemma = ?", (row['lemma'],))
             lemma_result = cursor.fetchone()
             if lemma_result:
@@ -343,15 +343,17 @@ class DictionaryDatabaseBuilder:
                             'subgenre',
                             subgenre_col,
                             int(frequency),
-                            None  # context_metadata
+                            None
                         ))
         
         if context_data:
-            cursor.executemany("""
-                INSERT INTO context_frequencies 
-                (lemma_id, pos, context_type, context_name, frequency, context_metadata)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, context_data)
+            for i in range(0, len(context_data), BATCH_SIZE):
+                batch = context_data[i:i + BATCH_SIZE]
+                cursor.executemany("""
+                    INSERT INTO context_frequencies 
+                    (lemma_id, pos, context_type, context_name, frequency, context_metadata)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, batch)
             
             self.conn.commit()
             logger.info(f"Inserted {len(context_data)} subgenre frequency records")
@@ -359,28 +361,24 @@ class DictionaryDatabaseBuilder:
     def build_database(self):
         """Main method to build the complete database"""
         logger.info("Starting database build process...")
+        logger.info(f"Excel file: {self.excel_file_path}")
+        logger.info(f"Database output: {self.db_path}")
         
         try:
-            # Connect to database
             self.conn = sqlite3.connect(self.db_path)
             
-            # Create schema and indexes
             self.create_database_schema()
             self.create_indexes()
             
-            # Insert default language
             language_id = self.insert_default_language()
             
-            # Load Excel data
             excel_data = self.load_excel_data()
             
-            # Process data in order
             self.process_lemmas_data(excel_data['lemmas'], language_id)
             self.process_wordforms_data(excel_data['wordforms'])
             self.process_broad_domains(excel_data['lemmas'])
             self.process_subgenres(excel_data['subgenres'])
             
-            # Generate database statistics
             self.generate_statistics()
             
             logger.info("Database build completed successfully!")
@@ -398,13 +396,11 @@ class DictionaryDatabaseBuilder:
         
         stats = {}
         
-        # Count records in each table
         tables = ['lemmas', 'inflected_forms', 'context_frequencies']
         for table in tables:
             cursor.execute(f"SELECT COUNT(*) FROM {table}")
             stats[table] = cursor.fetchone()[0]
         
-        # Additional statistics
         cursor.execute("SELECT COUNT(DISTINCT lemma) FROM lemmas")
         stats['unique_lemmas'] = cursor.fetchone()[0]
         
@@ -422,21 +418,14 @@ class DictionaryDatabaseBuilder:
             logger.info(f"  {key}: {value:,}")
 
 def main():
-    """Example usage"""
-    # Update this path to your Excel file
-    excel_file_path = "data/source/wordFrequency.xlsx"
-    
-    # Check if file exists
-    if not Path(excel_file_path).exists():
-        logger.error(f"Excel file not found: {excel_file_path}")
-        logger.info("Please update the excel_file_path variable with the correct path to your wordFrequency.xlsx file")
+    if not Path(EXCEL_FILE).exists():
+        logger.error(f"Excel file not found: {EXCEL_FILE}")
         return
     
-    # Build database
-    builder = DictionaryDatabaseBuilder(excel_file_path)
+    builder = DictionaryDatabaseBuilder()
     builder.build_database()
     
-    logger.info(f"Dictionary database created successfully at: {builder.db_path}")
+    logger.info(f"Dictionary database created successfully at: {DATABASE_FILE}")
 
 if __name__ == "__main__":
     main()
