@@ -21,38 +21,53 @@ Summarization Module (DeepSeek API)
 - Cache Manager - Memory cache orchestration
 - Wikipedia Connector- Wiki API integration
 
-Translation Module (local/cloud router)
-Summarization Module (DeepSeek API)
 ---
 
 ## 2. Architecture Vision & Goals
 
 ### 2.1 Business Goals
 - **Strategic Objectives**
-  - <!-- Objective 1 -->
-  - <!-- Objective 2 -->
-  
+  - "Build a sustainable learning tool with 100k+ daily active users within first year"
+  - "Create the fastest and most intuitive and most languages supported dictionary experience on desktop"
+  - "Build a moat through superior user experience and unique AI features"
+  - "Establish platform for language learning ecosystem"
+
 - **Success Metrics**
-  - <!-- Metric 1 -->
-  - <!-- Metric 2 -->
+  - "50ms average popup response time"
+  - "1M+ word lookups per month"
   
 - **Constraints & Assumptions**
-  - <!-- Constraint 1 -->
-  - <!-- Assumption 1 -->
+  - Solo developer with $5k budget
+  - Dictionary content must be requested from server, may be caching for some most used words.
 
 ### 2.2 Technical Goals
 - **Performance Targets**
-  - <!-- Target 1 -->
-  
+  - Popup appears within 50ms of hotkey press
+  - Memory cache hit rate >70% for common words
+  - API response time <100ms for cache misses (p95)
+  - Client memory usage <100MB
+  - Startup time <2 seconds
+  - AI summary generation <3 seconds
 - **Scalability Requirements**
-  - <!-- Requirement 1 -->
+  - Support 100k concurrent users without degradation
+  - API handles 1000 requests/second per server
+  - Horizontal scaling with <5min to spin up new instance
+  - Database supports 10M+ word lookups daily
+  - CDN distribution for global <100ms latency
   
 - **Security Objectives**
-  - <!-- Objective 1 -->
+  - API key encryption for LLM services
+  - No user data stored without explicit consent
+  - HTTPS for all API communications
+  - Local cache encrypted at rest
+  - Rate limiting to prevent API abuse
   
 - **Maintainability Goals**
-  - <!-- Goal 1 -->
-
+  - 90% automated test coverage
+  - Modular architecture for easy feature addition
+  - One-command deployment process
+  - Self-documenting API with OpenAPI spec
+  - Maximum 2-hour onboarding for new developers
 ---
 
 ## 3. Requirements Analysis
