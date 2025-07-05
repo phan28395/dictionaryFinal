@@ -79,15 +79,8 @@ Summarization Module (DeepSeek API)
 ### 3.1 Functional Requirements
 
 #### Core Features
-- Global hotkey activation on text selection
-- Instant show the most common definition for each POS of that word. Give the option for highlight context arround that word and use hot key to trigger the delivery of the right definition or these most probable definitions for that word. 
-- Clickable words within definitions
-- English-to-English dictionary lookup
-- Those definitions could be show in 10 most used languages. These translation also being included in our Database, generated through LLM-local or API.
-- AI-powered summarization
-- Search history
-- Wikipedia integration
-- Extendable to futures functions like Grammatics, statistics on words.
+- [ ] <!-- Feature 1 -->
+- [ ] <!-- Feature 2 -->
 
 #### User Stories
 ```
