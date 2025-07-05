@@ -9,8 +9,10 @@ A cross-platform popup dictionary application triggered by hotkey on highlighted
 - Tauri for Desktop Client - Native performance, small footprint
 - REST API initially - Simple to implement, can evolve to GraphQL
 - Wikipedia via Public API - Simple now, local DB later
-- use LLM (local or API) to generate translation in other languages and save in DB
 - AI Summarization via DeepSeek - Smart summaries, upgradeable to local
+- Context Analysis Module - NLP-based context understanding for definition ranking
+- Pre-computed Translation Database - Batch LLM translations stored locally
+- Plugin Architecture - Extensible module system for future features
 ### 1.3 Major Components
 - Desktop Client (Tauri): UI and hotkey handler
 - API Gateway - Routes requests to appropriate services
@@ -20,7 +22,9 @@ Translation Module (local/cloud router)
 Summarization Module (DeepSeek API)
 - Cache Manager - Memory cache orchestration
 - Wikipedia Connector- Wiki API integration
-
+- Context Analyzer - Ranks definitions based on surrounding text
+- Translation Pipeline - Batch processes translations
+- Plugin Manager - Handles feature extensions
 ---
 
 ## 2. Architecture Vision & Goals
@@ -75,8 +79,15 @@ Summarization Module (DeepSeek API)
 ### 3.1 Functional Requirements
 
 #### Core Features
-- [ ] <!-- Feature 1 -->
-- [ ] <!-- Feature 2 -->
+- Global hotkey activation on text selection
+- Instant show the most common definition for each POS of that word. Give the option for highlight context arround that word and use hot key to trigger the delivery of the right definition or these most probable definitions for that word. 
+- Clickable words within definitions
+- English-to-English dictionary lookup
+- Those definitions could be show in 10 most used languages. These translation also being included in our Database, generated through LLM-local or API.
+- AI-powered summarization
+- Search history
+- Wikipedia integration
+- Extendable to futures functions like Grammatics, statistics on words.
 
 #### User Stories
 ```
