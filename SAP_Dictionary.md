@@ -75,9 +75,13 @@ Summarization Module (DeepSeek API)
 ### 3.1 Functional Requirements
 
 #### Core Features
-- [ ] <!-- Feature 1 -->
-- [ ] <!-- Feature 2 -->
-
+- Hotkey-triggered popup on text selection
+- English-to-English definitions with Wikipedia integration
+- Translation to 10 major languages via LLM (could be local LLM generated or through API LLM)
+- Context-aware disambiguation
+- User accounts with word saving/notes
+- Sub-second response time with caching
+- Some useful statistics
 #### User Stories
 ```
 As a [user type]
